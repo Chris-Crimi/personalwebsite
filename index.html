@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Chris Crimi — Building in Public</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --text: #1F1A14;
+    --text-soft:  rgba(31, 26, 20, 0.62);
+    --text-faint: rgba(31, 26, 20, 0.42);
+    --rule:       rgba(31, 26, 20, 0.22);
+    --rule-faint: rgba(31, 26, 20, 0.10);
+
+    --dark-bg:   #1A1410;
+    --dark-text: #F5EFE6;
+
+    --red: #D9342B;
+    --yellow: #F5C518;
+    --highlight: #FFD400;
+    --teal: #3B5363;
+    --paper: #FFFFFF;
+    --manila: #D9B779;
+    --ink: #1F1A14;
+
+    --display: 'Playfair Display', Georgia, serif;
+    --sans: 'Inter', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 700;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: tabular-nums;
+  }
+  body { min-height: 100vh; overflow-x: hidden; }
+
+  /* ── STATUS BAR ───────────────────────────────────────────── */
+  .status-bar {
+    position: fixed; inset: 0 0 auto 0;
+    height: 32px;
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    border-bottom: 1px solid rgba(31, 26, 20, 0.5);
+    display: flex; align-items: center;
+    padding: 0 18px;
+    font-family: var(--mono);
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    z-index: 100;
+  }
+  .status-bar .l { display: flex; align-items: center; gap: 14px; }
+  .status-bar .r { margin-left: auto; display: flex; align-items: center; gap: 14px; color: rgba(245, 239, 230, 0.6); }
+  .sep { color: rgba(245, 239, 230, 0.28); }
+
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--red);
+    display: inline-block; margin-right: 7px;
+    box-shadow: 0 0 8px rgba(217, 52, 43, 0.6);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  /* ── TICKER ───────────────────────────────────────────────── */
+  .ticker {
+    position: fixed; top: 32px; left: 0; right: 0;
+    height: 26px;
+    background: var(--highlight); color: var(--ink);
+    overflow: hidden; display: flex; align-items: center;
+    z-index: 99;
+    border-bottom: 1px solid rgba(31, 26, 20, 0.28);
+  }
+  .ticker-track {
+    display: inline-flex; white-space: nowrap;
+    animation: scroll 60s linear infinite;
+    will-change: transform;
+  }
+  .ticker-item {
+    padding: 0 22px;
+    font-family: var(--mono);
+    font-size: 11.5px; font-weight: 700;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+  .up { color: var(--ink); }
+  .dn { color: var(--red); }
+  .star { color: var(--ink); }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ── MAIN ─────────────────────────────────────────────────── */
+  main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 58px 40px 0;
+  }
+
+  /* ── HERO ─────────────────────────────────────────────────── */
+  .hero {
+    padding: 72px 0 56px;
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: clamp(56px, 8.5vw, 124px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 22px;
+  }
+  .lede {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(22px, 2.6vw, 32px);
+    line-height: 1.25;
+    max-width: 700px;
+    margin-bottom: 16px;
+  }
+  .lede .punch {
+    background: var(--highlight);
+    color: var(--ink);
+    padding: 1px 8px;
+    font-family: var(--sans);
+    font-weight: 900;
+    font-size: 0.78em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    display: inline-block;
+    transform: translateY(-2px);
+  }
+  /* ── FEATURED BAND ────────────────────────────────────────── */
+  .featured-band {
+    margin: 8px 0 16px;
+  }
+  .featured-band a {
+    display: flex;
+    align-items: stretch;
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    border: 1.5px solid var(--ink);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    font-family: var(--mono);
+    overflow: hidden;
+  }
+  .featured-band a:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0 var(--highlight);
+  }
+  .featured-thumb {
+    flex-shrink: 0;
+    width: 240px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background: #000;
+    border-right: 1.5px solid rgba(245, 239, 230, 0.18);
+  }
+  .featured-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .featured-play {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px; height: 52px;
+    background: var(--highlight);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+    transition: transform 0.18s ease;
+  }
+  .featured-play::before {
+    content: '';
+    width: 0; height: 0;
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 14px solid var(--ink);
+    margin-left: 4px;
+  }
+  .featured-band a:hover .featured-play {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .featured-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    padding: 24px 30px;
+  }
+  .featured-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    color: rgba(245, 239, 230, 0.55);
+    text-transform: uppercase;
+    border-right: 1px solid rgba(245, 239, 230, 0.18);
+    padding-right: 22px;
+    flex-shrink: 0;
+  }
+  .featured-mark {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+  .featured-star {
+    color: var(--highlight);
+    font-size: 26px;
+    line-height: 1;
+    transform: translateY(2px);
+  }
+  .featured-name {
+    font-family: var(--display);
+    font-weight: 900;
+    font-size: 38px;
+    letter-spacing: -0.01em;
+    color: var(--paper);
+    line-height: 1;
+  }
+  .featured-cta {
+    margin-left: auto;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--highlight);
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .featured-band a:hover .featured-cta { letter-spacing: 0.22em; }
+
+  /* ── SECTION LABEL ────────────────────────────────────────── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.18em;
+    color: var(--text);
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-label::before {
+    content: '';
+    width: 28px; height: 6px;
+    background: var(--highlight);
+    display: inline-block;
+  }
+  .section-label .label-aside {
+    margin-left: auto;
+    font-size: 10px;
+    color: var(--text-faint);
+    letter-spacing: 0.14em;
+  }
+
+  /* ── PROJECTS GRID ────────────────────────────────────────── */
+  .builds { padding: 56px 0 80px; }
+
+  .projects {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+  }
+  .project-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1.5px solid var(--ink);
+    background: var(--bg);
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+  .project-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 var(--ink);
+    background: rgba(255, 212, 0, 0.12);
+  }
+  .project-thumb {
+    aspect-ratio: 16 / 10;
+    background: rgba(31, 26, 20, 0.04);
+    border-bottom: 1.5px solid var(--ink);
+    overflow: hidden;
+    position: relative;
+  }
+  .project-thumb img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top center;
+    display: block;
+  }
+  .project-thumb::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 70%, rgba(31,26,20,0.04));
+    pointer-events: none;
+  }
+  .project-meta {
+    padding: 18px 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .project-meta .info { min-width: 0; }
+  .project-meta h3 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .project-meta .url {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 4px 9px;
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .chip-shipping { background: var(--highlight); color: var(--ink); }
+  .chip-building { background: transparent; color: var(--text); border: 1px solid var(--rule); }
+  .chip-prelaunch { background: transparent; color: var(--text-faint); border: 1px solid var(--rule-faint); }
+  .chip-killed { background: transparent; color: var(--red); border: 1px solid rgba(217, 52, 43, 0.5); }
+
+  /* ── FOOTER ───────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--rule);
+    padding: 44px 0 52px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+  }
+  .footer-col h3 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text);
+    font-weight: 700;
+    margin-bottom: 14px;
+    position: relative;
+    padding-bottom: 8px;
+  }
+  .footer-col h3::after {
+    content: ''; position: absolute;
+    left: 0; bottom: 0;
+    width: 20px; height: 3px;
+    background: var(--highlight);
+  }
+  .footer-col a, .footer-col p {
+    display: block;
+    color: var(--text);
+    text-decoration: none; font-weight: 700;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 3px 0;
+    transition: background 0.12s, color 0.12s;
+  }
+  .footer-col a { width: fit-content; }
+  .footer-col a:hover {
+    background: var(--highlight); color: var(--ink);
+  }
+  .footer-col .quiet { color: var(--text-soft); font-weight: 400; line-height: 1.55; }
+
+  .footer-eof {
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule-faint);
+    color: var(--text-faint);
+    letter-spacing: 0.2em;
+    font-size: 10.5px;
+  }
+  .blink {
+    display: inline-block;
+    color: var(--ink);
+    background: var(--highlight);
+    padding: 0 3px;
+    margin-left: 2px;
+    animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ── RESPONSIVE ───────────────────────────────────────────── */
+  @media (max-width: 760px) {
+    main { padding: 70px 18px 0; }
+    .hero { padding: 48px 0 36px; }
+    .hero h1 { font-size: clamp(42px, 12vw, 76px); margin-bottom: 18px; }
+    .lede { font-size: 20px; }
+    .status-bar { font-size: 9.5px; padding: 0 12px; gap: 8px; }
+    .status-bar .r .session-block { display: none; }
+    .ticker-item { font-size: 10.5px; padding: 0 14px; }
+    .builds { padding: 40px 0 56px; }
+    .projects { grid-template-columns: 1fr; gap: 18px; }
+    .project-meta h3 { font-size: 19px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+    .featured-band a { flex-direction: column; align-items: stretch; }
+    .featured-thumb { width: 100%; border-right: none; border-bottom: 1.5px solid rgba(245, 239, 230, 0.18); }
+    .featured-content { padding: 16px 18px; gap: 14px; flex-wrap: wrap; }
+    .featured-tag { padding-right: 14px; font-size: 10px; border-right: none; }
+    .featured-name { font-size: 26px; }
+    .featured-star { font-size: 22px; }
+    .featured-cta { font-size: 10.5px; margin-left: 0; width: 100%; }
+  }
+  @media (max-width: 440px) {
+    .footer-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track { animation: none; }
+    .live-dot     { animation: none; opacity: 1; transform: none; }
+    .blink        { animation: none; }
+    *, *::before, *::after { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── STATUS BAR ─────────────────────────────────────────────── -->
+<div class="status-bar" aria-hidden="true">
+  <div class="l">
+    <span><span class="live-dot"></span>LIVE</span>
+    <span class="sep">·</span>
+    <span id="clock">--:--:-- UTC</span>
+    <span class="sep">·</span>
+    <span>CHRIS CRIMI // DESK</span>
+  </div>
+  <div class="r">
+    <span>READERS <span id="readers">000</span></span>
+    <span class="sep">·</span>
+    <span class="session-block">SESSION <span id="session-id">XXXX</span></span>
+  </div>
+</div>
+
+<!-- ── TICKER ─────────────────────────────────────────────────── -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="dn">✕</span> RIP CAULLIE.COM</span>
+    <span class="ticker-item"><span class="star">★</span> FEATURED ON CODE TV</span>
+    <span class="ticker-item"><span class="up">▲</span> NOW SHIPPING: BITTY.CITY</span>
+    <span class="ticker-item">— BUILDING IN PUBLIC SINCE 2024</span>
+    <span class="ticker-item"><span class="star">★</span> TWO SHIPPED · MORE INCOMING</span>
+    <span class="ticker-item">— NO COURSE · NO UPSELL · JUST BUILDS</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item"><span class="dn">✕</span> RIP CAULLIE.COM</span>
+    <span class="ticker-item"><span class="star">★</span> FEATURED ON CODE TV</span>
+    <span class="ticker-item"><span class="up">▲</span> NOW SHIPPING: BITTY.CITY</span>
+    <span class="ticker-item">— BUILDING IN PUBLIC SINCE 2024</span>
+    <span class="ticker-item"><span class="star">★</span> TWO SHIPPED · MORE INCOMING</span>
+    <span class="ticker-item">— NO COURSE · NO UPSELL · JUST BUILDS</span>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <section class="hero">
+    <!-- TODO: replace name -->
+    <h1>Chris Crimi</h1>
+
+    <p class="lede">
+      i build <span class="punch">in public</span>.
+    </p>
+  </section>
+
+  <!-- ── FEATURED ON CODE TV ──────────────────────────────────── -->
+  <aside class="featured-band" aria-label="Featured on Code TV">
+    <a href="https://www.youtube.com/watch?v=Qt3sbBbVnbs&list=PLhzkqwImPWbSEt3fgwD2hzTRHGs6WL5u0" target="_blank" rel="noopener">
+      <div class="featured-thumb">
+        <img src="https://img.youtube.com/vi/Qt3sbBbVnbs/maxresdefault.jpg"
+             onerror="this.onerror=null;this.src='https://img.youtube.com/vi/Qt3sbBbVnbs/hqdefault.jpg';"
+             alt="Code TV episode thumbnail" loading="lazy">
+        <span class="featured-play" aria-hidden="true"></span>
+      </div>
+      <div class="featured-content">
+        <span class="featured-tag">As Seen On</span>
+        <span class="featured-mark">
+          <span class="featured-star">★</span>
+          <span class="featured-name">Code TV</span>
+        </span>
+        <span class="featured-cta">Watch →</span>
+      </div>
+    </a>
+  </aside>
+
+  <!-- ── BUILDS ───────────────────────────────────────────────── -->
+  <section class="builds">
+    <div class="section-label">
+      /01 — In the lab
+      <span class="label-aside">things i'm building right now</span>
+    </div>
+
+    <div class="projects">
+      <a class="project-card" href="https://bitty.city" target="_blank" rel="noopener">
+        <div class="project-thumb">
+          <img src="https://image.thum.io/get/width/1200/https://bitty.city"
+               alt="bitty.city preview" loading="lazy">
+        </div>
+        <div class="project-meta">
+          <div class="info">
+            <h3>Bitty City</h3>
+            <div class="url">bitty.city</div>
+          </div>
+          <span class="chip chip-shipping">SHIPPING</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://caullie.com" target="_blank" rel="noopener">
+        <div class="project-thumb">
+          <img src="https://image.thum.io/get/width/1200/https://caullie.com"
+               alt="caullie.com preview" loading="lazy">
+        </div>
+        <div class="project-meta">
+          <div class="info">
+            <h3>Caullie</h3>
+            <div class="url">caullie.com</div>
+          </div>
+          <span class="chip chip-killed">✕ DEFUNCT</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ───────────────────────────────────────────────── -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>The desk</h3>
+        <p class="quiet">A working notebook from someone building startups out loud. Two shipped, more incoming.</p>
+      </div>
+      <div class="footer-col">
+        <h3>Channels</h3>
+        <!-- TODO: replace social URLs -->
+        <a href="#" target="_blank" rel="noopener">Instagram</a>
+        <a href="#" target="_blank" rel="noopener">YouTube</a>
+        <a href="#" target="_blank" rel="noopener">X (Twitter)</a>
+        <a href="#" target="_blank" rel="noopener">TikTok</a>
+      </div>
+      <div class="footer-col">
+        <h3>Contact</h3>
+        <!-- TODO: replace contact -->
+        <a href="mailto:hello@yourname.com">hello@yourname.com</a>
+        <a href="#" target="_blank" rel="noopener">Press / booking</a>
+      </div>
+    </div>
+    <div class="footer-eof">
+      — EOF · © 2026 CHRIS CRIMI · BUILD <span id="build-hash">a1b2c3</span> <span class="blink">█</span>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // live clock
+  const clock = document.getElementById('clock');
+  function tick() {
+    const d = new Date();
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+    clock.textContent = `${hh}:${mm}:${ss} UTC`;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // cosmetic counters (purely visual — NOT real numbers, do not fake your audience size)
+  // session id rotates per pageview; readers ticks softly. swap with real metrics when you have them.
+  document.getElementById('session-id').textContent =
+    String(Math.floor(1000 + Math.random() * 9000));
+
+  const readers = document.getElementById('readers');
+  let r = 0;
+  function bumpReaders() {
+    r = Math.max(0, r + Math.floor(Math.random() * 4) - 1);
+    readers.textContent = String(r).padStart(3, '0');
+  }
+  bumpReaders();
+  setInterval(bumpReaders, 2200);
+
+  // cosmetic build hash
+  document.getElementById('build-hash').textContent =
+    Array.from({ length: 6 }, () =>
+      '0123456789abcdef'[Math.floor(Math.random() * 16)]
+    ).join('');
+</script>
+
+</body>
+</html>
