@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Chris Crimi — Building in Public</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23FFD400'/%3E%3Ctext x='32' y='49' text-anchor='middle' font-family='Georgia,serif' font-weight='900' font-size='54' fill='%231F1A14'%3EC%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;900&family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -60,7 +61,6 @@
     z-index: 100;
   }
   .status-bar .l { display: flex; align-items: center; gap: 14px; }
-  .status-bar .r { margin-left: auto; display: flex; align-items: center; gap: 14px; color: rgba(245, 239, 230, 0.6); }
   .sep { color: rgba(245, 239, 230, 0.28); }
 
   .live-dot {
@@ -425,7 +425,6 @@
     .hero h1 { font-size: clamp(42px, 12vw, 76px); margin-bottom: 18px; }
     .lede { font-size: 20px; }
     .status-bar { font-size: 9.5px; padding: 0 12px; gap: 8px; }
-    .status-bar .r .session-block { display: none; }
     .ticker-item { font-size: 10.5px; padding: 0 14px; }
     .builds { padding: 40px 0 56px; }
     .projects { grid-template-columns: 1fr; gap: 18px; }
@@ -460,11 +459,6 @@
     <span class="sep">·</span>
     <span>CHRIS CRIMI // DESK</span>
   </div>
-  <div class="r">
-    <span>READERS <span id="readers">000</span></span>
-    <span class="sep">·</span>
-    <span class="session-block">SESSION <span id="session-id">XXXX</span></span>
-  </div>
 </div>
 
 <!-- ── TICKER ─────────────────────────────────────────────────── -->
@@ -490,7 +484,6 @@
 
   <!-- ── HERO ─────────────────────────────────────────────────── -->
   <section class="hero">
-    <!-- TODO: replace name -->
     <h1>Chris Crimi</h1>
 
     <p class="lede">
@@ -620,20 +613,6 @@
   }
   tick();
   setInterval(tick, 1000);
-
-  // cosmetic counters (purely visual — NOT real numbers, do not fake your audience size)
-  // session id rotates per pageview; readers ticks softly. swap with real metrics when you have them.
-  document.getElementById('session-id').textContent =
-    String(Math.floor(1000 + Math.random() * 9000));
-
-  const readers = document.getElementById('readers');
-  let r = 0;
-  function bumpReaders() {
-    r = Math.max(0, r + Math.floor(Math.random() * 4) - 1);
-    readers.textContent = String(r).padStart(3, '0');
-  }
-  bumpReaders();
-  setInterval(bumpReaders, 2200);
 
   // cosmetic build hash
   document.getElementById('build-hash').textContent =
